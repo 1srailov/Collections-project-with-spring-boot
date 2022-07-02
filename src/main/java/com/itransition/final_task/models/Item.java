@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -32,4 +33,13 @@ public class Item{
 
     @OneToMany(mappedBy = "itemId")
     private Set<Like> likes;
+
+    @OneToMany(mappedBy = "itemId")
+    private List<ItemValue> values;
+
+    public Item(Long collectionId, String name, Set<Hashtag> hashtags){
+        this.collectionId = collectionId;
+        this.name = name;
+        this.hashtags = hashtags;
+    }
 }

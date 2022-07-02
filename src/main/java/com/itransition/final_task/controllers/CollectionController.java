@@ -2,6 +2,8 @@ package com.itransition.final_task.controllers;
 
 
 import com.itransition.final_task.dto.request.CollectionRequest;
+import com.itransition.final_task.dto.request.CollectionColumnsRequest;
+import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.services.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +39,13 @@ public class CollectionController{
         return collectionService.getById(id);
     }
 
-    @GetMapping("/get-top")
-    public ResponseEntity<?> getTopCollections(){
-        return collectionService.getTop5Collections();
-    }
+//    @GetMapping("/get-top")
+//    public ResponseEntity<?> getTopCollections(){
+//        return collectionService.getTop5Collections();
+//    }
 
+    @PostMapping("/add-colum-to-collection")
+    public ResponseEntity<MessageResponse> addColumnToCollection(@RequestBody CollectionColumnsRequest collectionColumnsRequest){
+        return collectionService.addColumnToCollection(collectionColumnsRequest);
+    }
 }

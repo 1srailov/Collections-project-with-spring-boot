@@ -1,12 +1,15 @@
 package com.itransition.final_task.services;
 
 
+import com.itransition.final_task.dto.request.CollectionColumnsRequest;
 import com.itransition.final_task.dto.request.CollectionRequest;
 import com.itransition.final_task.dto.response.CollectionResponse;
 import com.itransition.final_task.models.Collection;
 
 import com.itransition.final_task.dto.response.CollectionToMainPageResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
+import com.itransition.final_task.models.CollectionColumn;
+import com.itransition.final_task.repository.CollectionColumnRepository;
 import com.itransition.final_task.repository.CollectionRepository;
 import com.itransition.final_task.repository.TopicRepository;
 import com.itransition.final_task.repository.UserRepository;
@@ -18,10 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +41,8 @@ public class CollectionService {
 
     private final TopicRepository topicRepository;
 
+    private final CollectionColumnRepository collectionColumnRepository;
+
     public ResponseEntity<MessageResponse> createCollection(CollectionRequest collectionRequest, String jwt){
         ResponseEntity<MessageResponse> responseEntity = fileService.checkAndSaveImage(collectionRequest.getImage());
 
@@ -51,10 +53,10 @@ public class CollectionService {
         return ResponseEntity.ok().body(new MessageResponse("ADDED SUCCESSFULLY"));
     }
 
-    public ResponseEntity<List<CollectionToMainPageResponse>> getTop5Collections(){
-            return ResponseEntity.ok().body(collectionRepository.getTopCollections()
-                    .stream().map(a -> modelMapper.map(a, CollectionToMainPageResponse.class)).collect(Collectors.toList()));
-    }
+//    public ResponseEntity<List<CollectionToMainPageResponse>> getTop5Collections(){
+//            return ResponseEntity.ok().body(collectionRepository.getTopCollections()
+//                    .stream().map(a -> modelMapper.map(a, CollectionToMainPageResponse.class)).collect(Collectors.toList()));
+//    }
 
     public ResponseEntity<?> deleteCollection(Long id, String jwt){
         Optional<Collection> collection = collectionRepository.findById(id);
@@ -125,4 +127,40 @@ public class CollectionService {
 
         collectionRepository.save(collection);
     }
+
+    public ResponseEntity<MessageResponse> addColumnToCollection(CollectionColumnsRequest columnsRequest){
+        ResponseEntity<MessageResponse> response = checkCollectionColumnsRequest(columnsRequest);
+        if(response != null) {
+            return response;
+        }
+            for(Map.Entry<String, Integer> column : columnsRequest.getColumns().entrySet())
+                collectionColumnRepository.save(new CollectionColumn(
+                        columnsRequest.getCollectionId(),
+                        column.getKey(),
+                        column.getValue()
+                ));
+
+            return ResponseEntity.ok().body(new MessageResponse("SAVED SUCCESSFULLY"));
+        }
+
+
+    private ResponseEntity<MessageResponse> checkCollectionColumnsRequest(CollectionColumnsRequest columnsRequest) {
+        if(collectionColumnRepository.existsByCollectionId(columnsRequest.getCollectionId())){
+            return ResponseEntity.status(405).body(new MessageResponse("COLUMNS ALREADY ADDED"));
+        }
+        if(!collectionRepository.existsById(columnsRequest.getCollectionId())){
+            return ResponseEntity.status(405).body(new MessageResponse("COLLECTION NOT FOUND"));
+        }
+        if(columnsRequest.getColumns().get(null) != null){
+            return ResponseEntity.status(405).body(new MessageResponse("ERROR IN THE COLUMN NAMES"));
+        }
+        for(Integer type : columnsRequest.getColumns().values()){
+            if(type == null || type < 0 || type > 5){
+                return ResponseEntity.status(405).body(new MessageResponse("FORMAT ERROR"));
+            }
+        }
+        return null;
+    }
+
 }
+

@@ -1,5 +1,6 @@
 package com.itransition.final_task.controllers;
 
+import com.itransition.final_task.dto.request.AddItemRequest;
 import com.itransition.final_task.dto.request.CommentResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.repository.CommentaryRepository;
@@ -33,5 +34,10 @@ public class ItemController {
     @PutMapping("/{itemId}/like-item")
     public void likeOrDislikeItem(@PathVariable Long itemId, HttpServletRequest request){
         itemService.likeOrDislikeItem(itemId, request.getHeader("Authorization").substring(7));
+    }
+
+    @PostMapping("/add-item")
+    public void addItem(@RequestBody AddItemRequest item, HttpServletRequest request){
+        itemService.addItem(item, request);
     }
 }
