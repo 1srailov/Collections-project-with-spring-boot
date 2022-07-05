@@ -24,5 +24,5 @@ public interface CollectionRepository extends JpaRepository<Collection, Long> {
                 "left join Item b on a.id = b.collectionId " +
                 "group by b.collectionId")
     List<Collection> getTopCollections(Pageable pageable);
-        
+
 }
