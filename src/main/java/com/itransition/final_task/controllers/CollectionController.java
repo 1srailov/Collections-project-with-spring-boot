@@ -19,7 +19,7 @@ public class CollectionController{
     private CollectionService collectionService;
 
 
-    @PostMapping("/add")
+    @PostMapping()
     public ResponseEntity<?> addCollection(@ModelAttribute CollectionRequest collectionRequest, HttpServletRequest request){
        return collectionService.createCollection(collectionRequest, request.getHeader("Authorization").substring(7));
     }
@@ -29,9 +29,9 @@ public class CollectionController{
         return collectionService.deleteCollection(id, request.getHeader("Authorization").substring(7));
     }
 
-    @GetMapping("/get-all")
-    public ResponseEntity<?> getAllByPagination(@RequestParam Integer id){
-        return collectionService.getAllByPage(id);
+    @GetMapping("/get-all/{page}")
+    public ResponseEntity<?> getAllByPagination(@PathVariable Integer page){
+        return collectionService.getAllByPage(page);
     }
 
     @GetMapping("/{id}")
@@ -39,13 +39,10 @@ public class CollectionController{
         return collectionService.getById(id);
     }
 
-//    @GetMapping("/get-top")
-//    public ResponseEntity<?> getTopCollections(){
-//        return collectionService.getTop5Collections();
-//    }
-
-    @PostMapping("/add-colum-to-collection")
-    public ResponseEntity<MessageResponse> addColumnToCollection(@RequestBody CollectionColumnsRequest collectionColumnsRequest){
-        return collectionService.addColumnToCollection(collectionColumnsRequest);
+    @GetMapping("/get-top")
+    public ResponseEntity<?> getTopCollections(){
+        return collectionService.getTop5Collections();
     }
+
+
 }

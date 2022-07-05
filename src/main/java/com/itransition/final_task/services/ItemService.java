@@ -1,11 +1,14 @@
 package com.itransition.final_task.services;
 
 import com.itransition.final_task.dto.request.AddItemRequest;
+import com.itransition.final_task.dto.response.ItemResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.models.*;
 import com.itransition.final_task.repository.*;
 import com.itransition.final_task.validations.ValueTypeValidation;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +19,18 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ItemService {
     private final UserService userService;
-    private final CommentaryRepository commentaryRepository;
-    private final CollectionRepository collectionRepository;
+    private final CollectionService collectionService;
     private final ItemRepository itemRepository;
-    private final CollectionColumnRepository cColumnRepository;
-    private final LikeRepository likeRepository;
+    private final CollectionColumnService collectionColumnService;
+    private final ItemValueService itemValueService;
 
-    private final ItemValueRepository itemValueRepository;
+    private final ModelMapper modelMapper;
 
     public ResponseEntity<MessageResponse> deleteItemFromCollection(Long itemId, String jwt){
         System.out.println(itemId);
         Optional<Item> item = itemRepository.findById(itemId);
         if(item.isPresent()){
-            Long userId = collectionRepository.getUserIdById(item.get().getCollectionId());
+            Long userId = collectionService.getUserIdById(item.get().getCollectionId());
             if(userService.checkIsCanEditData(userId, jwt)){
                 itemRepository.deleteById(itemId);
                 return ResponseEntity.ok().body(new MessageResponse("DELETED SUCCESSFULLY"));
@@ -39,36 +41,39 @@ public class ItemService {
         return ResponseEntity.status(405).body(new MessageResponse("ITEM NOT FOUND"));
     }
 
+    public ResponseEntity<List<MessageResponse>> addItem(AddItemRequest item, String jwt){
 
-    public ResponseEntity<MessageResponse> addCommentToItem(String text, Long itemId, String jwt) {
-        if (itemRepository.existsById(itemId)) {
-            commentaryRepository.save(new Commentary(text, itemId, userService.getUserIdFromJwt(jwt)));
-            return ResponseEntity.ok().body(new MessageResponse("COMMENTARY SUCCESSFULLY ADDED"));
+        List<MessageResponse> messages = new ArrayList<>();
+
+        Long userId = collectionService.getUserIdById(item.getCollectionId());
+
+        if(userId == null){
+            messages.add(new MessageResponse("COLLECTION NOT FOUND"));
+            return ResponseEntity.status(405).body(messages);
         }
-        return ResponseEntity.status(405).body(new MessageResponse("ITEM NOT FOUND"));
-    }
+        if(!userService.checkIsCanEditData(userId, jwt)){
+            messages.add(new MessageResponse("YOU DON'T HAVE PERMISSION TO DO IT"));
+            return ResponseEntity.status(405).body(messages);
 
-    public void likeOrDislikeItem(Long itemId, String jwt){
-        Long userId =  userService.getUserIdFromJwt(jwt);
-        if(likeRepository.existsByUserIdAndItemId(itemId, userId)){
-            likeRepository.deleteLikeByUserIdAndItemId(itemId, userId);
         }
-        likeRepository.save(new Like(userId, itemId));
-    }
 
-    public ResponseEntity<List<MessageResponse>> addItem(AddItemRequest item, HttpServletRequest request){
-        List<CollectionColumn> columns = cColumnRepository.findAllByCollectionId(item.getCollectionId());
+        List<CollectionColumn> columns = collectionColumnService.findAllByCollectionId(item.getCollectionId());
         Item item1 = new Item(item.getCollectionId(),
                 item.getName(), new HashSet<>());
         itemRepository.save(item1);
+
         Map<ItemValue, String> values = new HashMap<>();
         columns.forEach(a -> values.put(new ItemValue(item1.getId(), a.getId(), a.getTypeCode()),
                 item.getColumnValues().get(a.getId())));
 
-        List<MessageResponse> messages = checkAndInsertValuesToItem(values);
-        return messages.get(0).equals("ADDED SUCCESSFULLY") ?
-                ResponseEntity.ok(messages) : ResponseEntity.status(500).body(messages);
+        messages = checkAndInsertValuesToItem(values);
+        if(messages.get(0).getMessage().equals("ADDED SUCCESSFULLY"))
+             return ResponseEntity.ok(messages);
+
+            itemRepository.deleteById(item1.getId());
+            return ResponseEntity.status(500).body(messages);
     }
+
 
     private List<MessageResponse> checkAndInsertValuesToItem(Map<ItemValue, String> values) {
         List<MessageResponse> messages = new ArrayList<>();
@@ -96,11 +101,16 @@ public class ItemService {
                     messages.add(new MessageResponse("ERROR IN BOOLEAN TYPE"));
                 }
             }
-            itemValueRepository.save(item);
         });
         if(messages.size() == 0){
+            values.keySet();
+            itemValueService.saveAll(values.keySet());
             messages.add(new MessageResponse("ADDED SUCCESSFULLY"));
         }
         return messages;
+    }
+
+    public boolean existsById(Long itemId){
+        return itemRepository.existsById(itemId);
     }
 }

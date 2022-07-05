@@ -34,10 +34,12 @@ public class Collection {
     @Column(name = "description")
     private String description;
 
-
     @Column(name = "image_address")
     private String imageAddress;
 
     @OneToMany(mappedBy="collectionId")
     private Set<Item> items;
+
+    @OneToMany(mappedBy = "collectionId")
+    private Set<CollectionColumn> collectionColumns;
 }

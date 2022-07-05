@@ -10,8 +10,6 @@ import java.util.Set;
 
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class CollectionResponse{
     private Long id;
     private String author;
@@ -20,5 +18,5 @@ public class CollectionResponse{
     private String name;
     private String description;
     private String imageAddress;
-    private Set<Item> items;
+    private Set<ItemResponse> ResponseItems;
 }

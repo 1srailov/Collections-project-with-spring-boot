@@ -5,11 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
-public class CollectionToMainPageResponse {
+public class ItemValueResponse {
     private Long id;
-    private String author;
-    private String topic;
-    private String name;
-    private String imageAddress;
+    private Long columnId;
+    private String value;
 }

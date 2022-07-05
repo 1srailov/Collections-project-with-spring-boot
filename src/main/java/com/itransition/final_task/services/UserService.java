@@ -41,7 +41,14 @@ public class UserService {
 
     @Autowired
     JwtUtils jwtUtils;
-    private String username;
+
+    public String getUsernameById(Long id){
+        return userRepository.getUsernameById(id);
+    }
+
+    public User getUserByUsername(String username){
+       return userRepository.getUserByUsername(username);
+    }
 
 
     public ResponseEntity<?> login(LoginRequest loginRequest){

@@ -11,14 +11,18 @@ public interface CollectionRepository extends JpaRepository<Collection, Long> {
 
     List<Collection> findByOrderByIdDesc(Pageable pageable);
 
+    boolean existsByUserId(Long userId);
+
     @Query("SELECT a.userId from Collection a where a.id = :id")
     Long getUserIdById(Long id);
 
-
-//    @Query(value = "select a.userId," +
-//            "a.name, a.description, a.id, a.imageAddress, a.topicId" +
-//            " from Collection a where a.id in (select b.collection_id from Item b" +
-//            "group by b.collection_id order by count(b.collection_id)desc limit 5)")
+//    @Query("select a from Collection a where a.id in " +
+//            "(select b.collectionId from Item b group by b.collectionId order by count(b.collectionId)desc limit 5)")
 //    List<Collection> getTopCollections();
 
+        @Query("select a from Collection a " +
+                "left join Item b on a.id = b.collectionId " +
+                "group by b.collectionId")
+    List<Collection> getTopCollections(Pageable pageable);
+        
 }

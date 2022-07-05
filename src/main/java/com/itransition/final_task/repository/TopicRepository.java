@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface TopicRepository extends JpaRepository<Topic, Integer> {
 
     @Query("SELECT a.name from Topic a where a.id = :id")
-    String getTopicById(Integer id);
+    String getTopicNameById(Integer id);
 }
