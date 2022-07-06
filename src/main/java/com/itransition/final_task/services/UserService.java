@@ -82,9 +82,9 @@ public class UserService {
 
     public ResponseEntity<?> signup(SignupRequest signUpRequest){
 
-        List<String> errors = checkUserInfo(signUpRequest.getUsername(), signUpRequest.getEmail(), signUpRequest.getRole());
+        List<MessageResponse> errors = checkUserInfo(signUpRequest.getUsername(), signUpRequest.getEmail());
 
-        if(errors.get(0) == null){
+        if(errors.get(0).getMessage() == null){
            User user = new User(signUpRequest.getUsername(),
                    signUpRequest.getEmail(),
                    passwordEncoder.encode(signUpRequest.getPassword()));
@@ -93,18 +93,17 @@ public class UserService {
 
        }
 
-       return ResponseEntity.status(401).body(errors);
+       return ResponseEntity.status(404).body(errors);
     }
 
 
 
-    public List<String> checkUserInfo(String username, String email, String role){
+    public List<MessageResponse> checkUserInfo(String username, String email){
 
-        List<String> errors = new ArrayList<>();
+        List<MessageResponse> errors = new ArrayList<>();
 
-        errors.add(userRepository.existsByUsername(username) ? "Error: Username is already in use!" :
-                userRepository.existsByEmail(email) ? "Error: Email is already in use!" :
-                        !roleRepository.existsByName(role)? "Error: Role is not found." : null);
+        errors.add(new MessageResponse(userRepository.existsByUsername(username) ? "Error: Username is already in use!" :
+                userRepository.existsByEmail(email) ? "Error: Email is already in use!" : null));
 
         return errors;
     }

@@ -1,15 +1,14 @@
 package com.itransition.final_task.config;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class beans {
+public class ModelMapper {
 
     @Bean
-    public ModelMapper modelMapper(){
-        return new ModelMapper();
+    public org.modelmapper.ModelMapper modelMappers(){
+        return new org.modelmapper.ModelMapper();
     }
 
 }

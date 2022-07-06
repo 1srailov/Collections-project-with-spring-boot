@@ -2,6 +2,7 @@ package com.itransition.final_task.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class SignupRequest{
         @NotBlank
         @NotNull
@@ -26,8 +28,4 @@ public class SignupRequest{
         @NotNull
         @Size(min = 6, max = 40)
         private String password;
-
-        @NotBlank
-        @NotNull
-        private String role;
 }

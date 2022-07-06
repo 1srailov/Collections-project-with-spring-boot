@@ -17,5 +17,5 @@ public class CollectionRequest{
     private Integer topicId;
     private String name;
     private String description;
-    private MultipartFile image;
+    private HashMap<String, Integer> columns;
 }

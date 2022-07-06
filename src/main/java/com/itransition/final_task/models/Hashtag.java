@@ -22,4 +22,8 @@ public class Hashtag {
     @Column(name = "name")
     private String name;
 
+    public Hashtag(Long id){
+        this.id = id;
+    }
+
 }

@@ -1,6 +1,4 @@
 package com.itransition.final_task.services;
-
-import com.itransition.final_task.dto.request.CollectionColumnsRequest;
 import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.models.CollectionColumn;
 import com.itransition.final_task.repository.CollectionColumnRepository;
@@ -15,8 +13,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CollectionColumnService {
     private final CollectionColumnRepository collectionColumnRepository;
-    private final CollectionService collectionService;
-
     public Boolean existsByCollectionId(Long collectionId){
         return collectionColumnRepository.existsByCollectionId(collectionId);
     }
@@ -29,14 +25,14 @@ public class CollectionColumnService {
         return collectionColumnRepository.findAllByCollectionId(collectionId);
     }
 
-    public ResponseEntity<MessageResponse> addColumnToCollection(CollectionColumnsRequest columnsRequest){
-        ResponseEntity<MessageResponse> response = checkCollectionColumnsRequest(columnsRequest);
+    public ResponseEntity<MessageResponse> addColumnToCollection(Map<String, Integer> columns, Long id){
+        ResponseEntity<MessageResponse> response = checkCollectionColumnsRequest(columns, id);
         if(response != null) {
             return response;
         }
-        for(Map.Entry<String, Integer> column : columnsRequest.getColumns().entrySet())
+        for(Map.Entry<String, Integer> column : columns.entrySet())
             collectionColumnRepository.save(new CollectionColumn(
-                    columnsRequest.getCollectionId(),
+                    id,
                     column.getKey(),
                     column.getValue()
             ));
@@ -44,17 +40,15 @@ public class CollectionColumnService {
         return ResponseEntity.ok().body(new MessageResponse("SAVED SUCCESSFULLY"));
     }
 
-    private ResponseEntity<MessageResponse> checkCollectionColumnsRequest(CollectionColumnsRequest columnsRequest) {
-        if(existsByCollectionId(columnsRequest.getCollectionId())){
+    private ResponseEntity<MessageResponse> checkCollectionColumnsRequest(Map<String, Integer> columns, Long id) {
+        if(existsByCollectionId(id)){
             return ResponseEntity.status(405).body(new MessageResponse("COLUMNS ALREADY ADDED"));
         }
-        if(!collectionService.existsById(columnsRequest.getCollectionId())){
-            return ResponseEntity.status(405).body(new MessageResponse("COLLECTION NOT FOUND"));
-        }
-        if(columnsRequest.getColumns().get(null) != null){
+
+        if(columns.get(null) != null){
             return ResponseEntity.status(405).body(new MessageResponse("ERROR IN THE COLUMN NAMES"));
         }
-        for(Integer type : columnsRequest.getColumns().values()){
+        for(Integer type : columns.values()){
             if(type == null || type < 0 || type > 5){
                 return ResponseEntity.status(405).body(new MessageResponse("FORMAT ERROR"));
             }

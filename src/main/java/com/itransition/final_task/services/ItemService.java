@@ -1,6 +1,7 @@
 package com.itransition.final_task.services;
 
 import com.itransition.final_task.dto.request.AddItemRequest;
+import com.itransition.final_task.dto.response.CollectionColumnResponse;
 import com.itransition.final_task.dto.response.ItemResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.models.*;
@@ -8,6 +9,7 @@ import com.itransition.final_task.repository.*;
 import com.itransition.final_task.validations.ValueTypeValidation;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final CollectionColumnService collectionColumnService;
     private final ItemValueService itemValueService;
+
+    private final HashtagService hashtagService;
 
     private final ModelMapper modelMapper;
 
@@ -47,31 +51,46 @@ public class ItemService {
 
         Long userId = collectionService.getUserIdById(item.getCollectionId());
 
-        if(userId == null){
-            messages.add(new MessageResponse("COLLECTION NOT FOUND"));
-            return ResponseEntity.status(405).body(messages);
-        }
-        if(!userService.checkIsCanEditData(userId, jwt)){
-            messages.add(new MessageResponse("YOU DON'T HAVE PERMISSION TO DO IT"));
-            return ResponseEntity.status(405).body(messages);
+        MessageResponse error = checkCollectionAndPermission(userId, jwt);
 
+        if(error != null) {
+            messages.add(error);
+            return ResponseEntity.status(405).body(messages);
         }
 
         List<CollectionColumn> columns = collectionColumnService.findAllByCollectionId(item.getCollectionId());
-        Item item1 = new Item(item.getCollectionId(),
-                item.getName(), new HashSet<>());
+
+
+        Item item1 = new Item(item.getCollectionId(), item.getName(), hashtagService.toDtos(item.getHashtags()));
+
+        System.out.println(item1);
+
         itemRepository.save(item1);
 
         Map<ItemValue, String> values = new HashMap<>();
+
         columns.forEach(a -> values.put(new ItemValue(item1.getId(), a.getId(), a.getTypeCode()),
                 item.getColumnValues().get(a.getId())));
 
         messages = checkAndInsertValuesToItem(values);
-        if(messages.get(0).getMessage().equals("ADDED SUCCESSFULLY"))
-             return ResponseEntity.ok(messages);
 
-            itemRepository.deleteById(item1.getId());
-            return ResponseEntity.status(500).body(messages);
+        if(messages.get(0).getMessage().equals("ADDED SUCCESSFULLY")) {
+            return ResponseEntity.ok(messages);
+        }
+
+        itemRepository.deleteById(item1.getId());
+
+        return ResponseEntity.status(500).body(messages);
+    }
+
+    private MessageResponse checkCollectionAndPermission(Long userId, String jwt) {
+        if(userId == null){
+            return new MessageResponse("COLLECTION NOT FOUND");
+        }
+        if(!userService.checkIsCanEditData(userId, jwt)){
+            return new MessageResponse("YOU DON'T HAVE PERMISSION TO DO IT");
+        }
+        return null;
     }
 
 

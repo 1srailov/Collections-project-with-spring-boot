@@ -1,5 +1,6 @@
 package com.itransition.final_task.dto.response;
 
+import com.itransition.final_task.models.CollectionColumn;
 import com.itransition.final_task.models.Item;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,5 +19,6 @@ public class CollectionResponse{
     private String name;
     private String description;
     private String imageAddress;
+    private Set<CollectionColumnResponse> ResponseCollectionColumns;
     private Set<ItemResponse> ResponseItems;
 }

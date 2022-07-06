@@ -1,7 +1,5 @@
 package com.itransition.final_task.dto.request;
 
-import com.itransition.final_task.models.Hashtag;
-import jdk.jfr.DataAmount;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +16,7 @@ public class AddItemRequest {
 
     private String name;
 
-    private Set<Integer> hashtags;
+    private Set<Long> hashtags;
 
     private HashMap<Long, String> columnValues;
 }

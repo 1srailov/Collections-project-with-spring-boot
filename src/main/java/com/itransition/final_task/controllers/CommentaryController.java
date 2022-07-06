@@ -1,6 +1,6 @@
 package com.itransition.final_task.controllers;
 
-import com.itransition.final_task.dto.request.CommentResponse;
+import com.itransition.final_task.dto.response.CommentResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.services.CommentaryService;
 import org.springframework.beans.factory.annotation.Autowired;

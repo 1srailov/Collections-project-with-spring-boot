@@ -1,6 +1,5 @@
 package com.itransition.final_task.models;
 
-import jdk.jfr.SettingDescriptor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,9 +36,13 @@ public class Collection {
     @Column(name = "image_address")
     private String imageAddress;
 
+    @Column(name = "image_id")
+    private String imageId;
+
     @OneToMany(mappedBy="collectionId")
     private Set<Item> items;
 
     @OneToMany(mappedBy = "collectionId")
     private Set<CollectionColumn> collectionColumns;
+
 }
