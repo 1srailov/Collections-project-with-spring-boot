@@ -13,13 +13,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CollectionColumnService {
     private final CollectionColumnRepository collectionColumnRepository;
-    public Boolean existsByCollectionId(Long collectionId){
-        return collectionColumnRepository.existsByCollectionId(collectionId);
-    }
-
-    public void save(CollectionColumn collectionColumn){
-        collectionColumnRepository.save(collectionColumn);
-    }
 
     public List<CollectionColumn> findAllByCollectionId(Long collectionId){
         return collectionColumnRepository.findAllByCollectionId(collectionId);
@@ -41,7 +34,7 @@ public class CollectionColumnService {
     }
 
     private ResponseEntity<MessageResponse> checkCollectionColumnsRequest(Map<String, Integer> columns, Long id) {
-        if(existsByCollectionId(id)){
+        if(collectionColumnRepository.existsByCollectionId(id)){
             return ResponseEntity.status(405).body(new MessageResponse("COLUMNS ALREADY ADDED"));
         }
 

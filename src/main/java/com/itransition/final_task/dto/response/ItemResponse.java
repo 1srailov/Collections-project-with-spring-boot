@@ -18,12 +18,21 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemResponse{
     private Long id;
     private Long collectionId;
     private String name;
-    private Set<Hashtag> hashtags;
-    private Set<Commentary> commentaries;
-    private Set<Like> likes;
+    private Set<HashtagResponse> hashtags;
+    private Set<CommentaryResponse> commentaries;
+    private Integer likeCount;
     private List<ItemValueResponse> values;
+
+    public ItemResponse(Long id, Long collectionId, String name, int size, List<ItemValueResponse> itemValues) {
+    this.id = id;
+    this.collectionId = collectionId;
+    this.name = name;
+    this.likeCount = size;
+    this.values = itemValues;
+    }
 }

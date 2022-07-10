@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,5 +35,11 @@ public class HashtagService {
         Set<Hashtag> hashtags = new HashSet<>();
         hashtagIds.forEach(a -> hashtags.add(new Hashtag(a)));
         return hashtags;
+    }
+
+    public Set<HashtagResponse> entitiesToResponses(Set<Hashtag> hashtags){
+       return hashtags != null ? hashtags.stream().
+               map(a -> modelMapper.map(a, HashtagResponse.class)).collect(Collectors.toSet())
+               : null;
     }
 }

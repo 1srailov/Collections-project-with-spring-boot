@@ -46,8 +46,8 @@ public class CollectionController{
     }
 
     @GetMapping("/get-top")
-    public ResponseEntity<?> getTopCollections(){
-        return collectionService.getTop5Collections();
+    public ResponseEntity<List<CollectionToMainPageResponse>> getTopCollections(){
+     return collectionService.getTop5Collections();
     }
 
 

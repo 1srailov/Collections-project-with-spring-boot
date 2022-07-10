@@ -72,8 +72,8 @@ public class FileService {
 
     public void deleteByAddress(String imageAddress){
         try {
-            System.out.println(imageAddress);
-            cloudinary.uploader().destroy(imageAddress, ObjectUtils.emptyMap());
+            if(imageAddress != null)
+                cloudinary.uploader().destroy(imageAddress, ObjectUtils.emptyMap());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

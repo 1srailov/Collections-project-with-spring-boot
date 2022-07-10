@@ -14,7 +14,6 @@ public class LikeService {
 
     private final UserService userService;
 
-
     public void likeOrDislikeItem(Long itemId, String jwt){
         Long userId =  userService.getUserIdFromJwt(jwt);
         if(likeRepository.existsByUserIdAndItemId(userId, itemId)){

@@ -2,19 +2,18 @@ package com.itransition.final_task.services;
 
 
 import com.itransition.final_task.dto.request.CollectionRequest;
-import com.itransition.final_task.dto.response.CollectionColumnResponse;
-import com.itransition.final_task.dto.response.CollectionResponse;
-import com.itransition.final_task.mapper.CollectionColumnsMapper;
-import com.itransition.final_task.mapper.ItemMapper;
+import com.itransition.final_task.dto.response.*;
+import com.itransition.final_task.mapper.CommentaryMapper;
+import com.itransition.final_task.mapper.ItemValueMapper;
 import com.itransition.final_task.models.Collection;
 
-import com.itransition.final_task.dto.response.CollectionToMainPageResponse;
-import com.itransition.final_task.dto.response.MessageResponse;
+import com.itransition.final_task.models.Commentary;
 import com.itransition.final_task.repository.CollectionRepository;
 import com.itransition.final_task.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -32,19 +31,19 @@ public class CollectionService {
     private final UserService userService;
     private final TopicService topicService;
     private final FileService fileService;
-
     private final CollectionColumnService collectionColumnService;
+    private final HashtagService hashtagService;
 
     public ResponseEntity<?> createCollection(CollectionRequest collectionRequest, String jwt){
 
         Collection collection = MapAndSaveCollection(collectionRequest, jwt);
 
+        ResponseEntity<MessageResponse> response =
+                collectionColumnService.addColumnToCollection(collectionRequest.getColumns(), collection.getId());
 
-
-        if(!collectionRepository.existsById(collection.getId())){
-            return ResponseEntity.status(405).body(new MessageResponse("COLLECTION NOT FOUND"));
+        if(!response.getStatusCode().is2xxSuccessful()){
+            return response;
         }
-        collectionColumnService.addColumnToCollection(collectionRequest.getColumns(), collection.getId());
 
         CollectionResponse collectionResponse = modelMapper.map(collection, CollectionResponse.class);
 
@@ -55,8 +54,16 @@ public class CollectionService {
 
     private void setDetailsToCollection(CollectionResponse collectionDto, Collection collection){
         if(collection.getItems() != null){
-            collectionDto.setResponseItems(collection.getItems().stream().map(ItemMapper::toDto).collect(Collectors.toSet()));
+            collectionDto.setResponseItems(collection.getItems().stream().map(
+                    a -> {
+                        ItemResponse item = ItemValueMapper.toDto(a);
+                        item.setHashtags(hashtagService.entitiesToResponses(a.getHashtags()));
+                        item.setCommentaries(commentaryEntitiesToResponses(a.getCommentaries()));
+                        return item;
+                    }
+            ).collect(Collectors.toSet()));
         }
+
         collectionDto.setAuthor(userService.getUsernameById(collection.getUserId()));
         collectionDto.setTopic(topicService.getTopicNameById(collection.getTopicId()));
     }
@@ -65,9 +72,8 @@ public class CollectionService {
         Optional<Collection> collection = collectionRepository.findById(id);
         if(collection.isPresent()){
            if(userService.checkIsCanEditData(collection.get().getUserId(), jwt)){
-               System.out.println(collection.get().getImageId());
                fileService.deleteByAddress(collection.get().getImageId());
-               collectionRepository.deleteById(collection.get().getId());
+               collectionRepository.deleteCollectionById(collection.get().getId());
                return ResponseEntity.ok().body(new MessageResponse("DELETED SUCCESSFULLY"));
            }
            return ResponseEntity.status(401).body(new MessageResponse("YOU DON'T HAVE PERMISSIONS FOR DO IT"));
@@ -78,9 +84,8 @@ public class CollectionService {
     public ResponseEntity<List<CollectionToMainPageResponse>> getAllByPage(Integer page_count){
         Pageable pageable = PageRequest.of(page_count, 15);
 
-        List<Collection> collections = collectionRepository.findByOrderByIdDesc(pageable);
-
-        List<CollectionToMainPageResponse> collectionToMainPageResponses = setCollectionsResponse(collections);
+        List<CollectionToMainPageResponse> collectionToMainPageResponses =
+                setCollectionsResponse(collectionRepository.findByOrderByIdDesc(pageable));
 
         return ResponseEntity.ok().body(collectionToMainPageResponses);
     }
@@ -128,18 +133,16 @@ public class CollectionService {
         return collectionRepository.save(collection);
     }
 
-    public Long getUserIdById(Long collectionId){
+    public Long getUserIdByCollectionId(Long collectionId){
         return collectionRepository.getUserIdById(collectionId);
     }
 
-    public ResponseEntity<?> getTop5Collections(){
-        List<Collection> collections = collectionRepository.getTopCollections(PageRequest.of(0,5));
+    public ResponseEntity<List<CollectionToMainPageResponse>> getTop5Collections(){
 
-        List<CollectionToMainPageResponse> collectionDtos = new ArrayList<>();
+        List<CollectionToMainPageResponse> collectionToMainPageResponses =
+                setCollectionsResponse(collectionRepository.getTopCollections(PageRequest.of(0,5)));
 
-        collections.forEach(a -> collectionDtos.add(modelMapper.map(a, CollectionToMainPageResponse.class)));
-
-        return ResponseEntity.ok().body(collectionDtos);
+        return ResponseEntity.ok().body(collectionToMainPageResponses);
     }
 
     public Boolean existsById(Long collectionId){
@@ -170,6 +173,17 @@ public class CollectionService {
             return ResponseEntity.ok().body(responses);
         }
        return ResponseEntity.status(405).body(new ArrayList<>());
+    }
+
+    public Set<CommentaryResponse> commentaryEntitiesToResponses(Set<Commentary> commentaries){
+        System.out.println(commentaries);
+        return commentaries != null ? commentaries.stream().map(
+                a -> {
+                    CommentaryResponse commentaryResponse = modelMapper.map(a, CommentaryResponse.class);
+                    System.out.println(userService.getUsernameById(7L));
+                    commentaryResponse.setUsername(userService.getUsernameById(a.getUserId()));
+                    return commentaryResponse;
+                }).collect(Collectors.toSet()) : null;
     }
 }
 

@@ -48,14 +48,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
         ;
     }
 
-
     @Bean
     @Override
     public AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -83,7 +80,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 "/favicon.ico",
                 "/**/*.html"
                 ).permitAll()
-                .anyRequest().authenticated();
+                .antMatchers(HttpMethod.GET,
+                        "collection/**", "item/**")
+                .permitAll();
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }

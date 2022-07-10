@@ -1,31 +1,32 @@
 package com.itransition.final_task.services;
 
 import com.itransition.final_task.dto.request.AddItemRequest;
-import com.itransition.final_task.dto.response.CollectionColumnResponse;
+
+import com.itransition.final_task.dto.response.CommentaryResponse;
 import com.itransition.final_task.dto.response.ItemResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
+import com.itransition.final_task.mapper.CommentaryMapper;
+import com.itransition.final_task.mapper.ItemValueMapper;
 import com.itransition.final_task.models.*;
 import com.itransition.final_task.repository.*;
-import com.itransition.final_task.validations.ValueTypeValidation;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ItemService {
     private final UserService userService;
+
+    @Lazy
     private final CollectionService collectionService;
     private final ItemRepository itemRepository;
     private final CollectionColumnService collectionColumnService;
     private final ItemValueService itemValueService;
-
     private final HashtagService hashtagService;
 
     private final ModelMapper modelMapper;
@@ -34,7 +35,7 @@ public class ItemService {
         System.out.println(itemId);
         Optional<Item> item = itemRepository.findById(itemId);
         if(item.isPresent()){
-            Long userId = collectionService.getUserIdById(item.get().getCollectionId());
+            Long userId = collectionService.getUserIdByCollectionId(item.get().getCollectionId());
             if(userService.checkIsCanEditData(userId, jwt)){
                 itemRepository.deleteById(itemId);
                 return ResponseEntity.ok().body(new MessageResponse("DELETED SUCCESSFULLY"));
@@ -49,7 +50,7 @@ public class ItemService {
 
         List<MessageResponse> messages = new ArrayList<>();
 
-        Long userId = collectionService.getUserIdById(item.getCollectionId());
+        Long userId = collectionService.getUserIdByCollectionId(item.getCollectionId());
 
         MessageResponse error = checkCollectionAndPermission(userId, jwt);
 
@@ -131,5 +132,27 @@ public class ItemService {
 
     public boolean existsById(Long itemId){
         return itemRepository.existsById(itemId);
+    }
+
+    public ResponseEntity<ItemResponse> getItemById(Long id){
+        Optional<Item> item = itemRepository.findById(id);
+        return item.map(value -> ResponseEntity.ok().body(itemToItemResponse(value))).orElseGet(() -> ResponseEntity.status(404).body(null));
+    }
+
+    public ItemResponse itemToItemResponse(Item item){
+        ItemResponse itemResponse = ItemValueMapper.toDto(item);
+        itemResponse.setHashtags(hashtagService.entitiesToResponses(item.getHashtags()));
+        itemResponse.setCommentaries(commentaryEntitiesToResponses(item.getCommentaries()));
+        return itemResponse;
+    }
+
+    public Set<CommentaryResponse> commentaryEntitiesToResponses(Set<Commentary> commentaries){
+        return commentaries != null ? commentaries.stream().map(
+                a -> {
+                    CommentaryResponse commentaryResponse = modelMapper.map(a, CommentaryResponse.class);
+
+                    commentaryResponse.setUsername(userService.getUsernameById(a.getUserId()));
+                    return commentaryResponse;
+                }).collect(Collectors.toSet()) : null;
     }
 }

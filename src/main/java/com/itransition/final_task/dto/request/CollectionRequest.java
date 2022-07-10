@@ -14,8 +14,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CollectionRequest{
+
+    @NotNull
     private Integer topicId;
+
+    @NotNull
     private String name;
+
+    @NotNull
     private String description;
+
+    @NotNull
     private HashMap<String, Integer> columns;
 }

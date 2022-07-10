@@ -1,6 +1,7 @@
 package com.itransition.final_task.controllers;
 
 import com.itransition.final_task.dto.request.AddItemRequest;
+import com.itransition.final_task.dto.response.ItemResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class ItemController {
         return itemService.deleteItemFromCollection(id, request.getHeader("Authorization").substring(7));
     }
 
-
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemResponse> getItemById(@PathVariable Long id){
+        return itemService.getItemById(id);
+    }
 
 }
