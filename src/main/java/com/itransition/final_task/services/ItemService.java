@@ -5,6 +5,7 @@ import com.itransition.final_task.dto.request.AddItemRequest;
 import com.itransition.final_task.dto.response.CommentaryResponse;
 import com.itransition.final_task.dto.response.ItemResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
+import com.itransition.final_task.mapper.HashTagsMapper;
 import com.itransition.final_task.mapper.ItemValueMapper;
 import com.itransition.final_task.models.*;
 import com.itransition.final_task.repository.*;
@@ -23,10 +24,14 @@ public class ItemService {
 
     @Lazy
     private final CollectionService collectionService;
+
     private final ItemRepository itemRepository;
-    private final CollectionColumnService collectionColumnService;
+
     private final ItemValueService itemValueService;
-    private final HashtagService hashtagService;
+
+    private final CollectionColumnService collectionColumnService;
+
+    private final HashTagsMapper hashTagsMapper;
 
     private final ModelMapper modelMapper;
 
@@ -61,7 +66,7 @@ public class ItemService {
         List<CollectionColumn> columns = collectionColumnService.findAllByCollectionId(item.getCollectionId());
 
 
-        Item item1 = new Item(item.getCollectionId(), item.getName(), hashtagService.toDtos(item.getHashtags()));
+        Item item1 = new Item(item.getCollectionId(), item.getName(), hashTagsMapper.toDtos(item.getHashtags()));
 
         System.out.println(item1);
 
@@ -140,7 +145,7 @@ public class ItemService {
 
     public ItemResponse itemToItemResponse(Item item){
         ItemResponse itemResponse = ItemValueMapper.toDto(item);
-        itemResponse.setHashtags(hashtagService.entitiesToResponses(item.getHashtags()));
+        itemResponse.setHashtags(hashTagsMapper.entitiesToResponses(item.getHashtags()));
         itemResponse.setCommentaries(commentaryEntitiesToResponses(item.getCommentaries()));
         return itemResponse;
     }

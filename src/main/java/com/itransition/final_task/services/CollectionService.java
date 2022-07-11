@@ -3,6 +3,7 @@ package com.itransition.final_task.services;
 
 import com.itransition.final_task.dto.request.CollectionRequest;
 import com.itransition.final_task.dto.response.*;
+import com.itransition.final_task.mapper.CollectionMapper;
 import com.itransition.final_task.mapper.ItemValueMapper;
 import com.itransition.final_task.models.Collection;
 
@@ -33,9 +34,12 @@ public class CollectionService {
     private final CollectionColumnService collectionColumnService;
     private final HashtagService hashtagService;
 
+    private final CollectionMapper collectionMapper;
+
     public ResponseEntity<?> createCollection(CollectionRequest collectionRequest, String jwt){
 
         Collection collection = MapAndSaveCollection(collectionRequest, jwt);
+        System.out.println(collection);
 
         ResponseEntity<MessageResponse> response =
                 collectionColumnService.addColumnToCollection(collectionRequest.getColumns(), collection.getId());
@@ -125,7 +129,9 @@ public class CollectionService {
 
 
     public Collection MapAndSaveCollection(CollectionRequest collectionRequest, String jwt){
-        Collection collection = modelMapper.map(collectionRequest, Collection.class);
+        System.out.println(collectionRequest);
+        Collection collection = collectionMapper.toEntity(collectionRequest);
+        System.out.println(collection);
 
         collection.setUserId(userService.getUserByUsername(jwtUtils.getUserNameFromJwtToken(jwt)).getId());
 

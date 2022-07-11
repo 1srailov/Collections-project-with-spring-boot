@@ -20,10 +20,13 @@ public class CollectionRequest{
     private Integer topicId;
 
     @NotNull
+    @NotBlank
     private String name;
 
     @NotNull
+    @NotBlank
     private String description;
 
+    @NotNull
     private HashMap<String, Integer> columns;
 }

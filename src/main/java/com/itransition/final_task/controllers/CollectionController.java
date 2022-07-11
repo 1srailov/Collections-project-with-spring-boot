@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,7 +19,7 @@ public class CollectionController{
     private CollectionService collectionService;
 
     @PostMapping()
-    public ResponseEntity<?> addCollection(@RequestBody CollectionRequest collectionRequest, HttpServletRequest request){
+    public ResponseEntity<?> addCollection(@RequestBody @Valid CollectionRequest collectionRequest, HttpServletRequest request){
         System.out.println(collectionRequest.getColumns());
        return collectionService.createCollection(collectionRequest, request.getHeader("Authorization").substring(7));
     }
