@@ -27,8 +27,9 @@ public class CommentaryService{
     private UserService userService;
 
     public ResponseEntity<MessageResponse> addCommentToItem(String text, Long itemId, String jwt) {
-        if (itemService.existsById(itemId)) {
-            commentaryRepository.save(new Commentary(text, itemId, userService.getUserIdFromJwt(jwt)));
+        Long userId =  userService.getUserIdFromJwt(jwt);
+        if (itemService.existsById(itemId) && userId != null) {
+            commentaryRepository.save(new Commentary(text, itemId, userId));
             return ResponseEntity.ok().body(new MessageResponse("COMMENTARY SUCCESSFULLY ADDED"));
         }
         return ResponseEntity.status(405).body(new MessageResponse("ITEM NOT FOUND"));
