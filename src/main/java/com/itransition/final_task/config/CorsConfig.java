@@ -1,6 +1,5 @@
 package com.itransition.final_task.config;
 
-
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +10,7 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class CorsConfig {
+
     @Bean
     public FilterRegistrationBean customCorsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -24,4 +24,5 @@ public class CorsConfig {
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
     }
+
 }

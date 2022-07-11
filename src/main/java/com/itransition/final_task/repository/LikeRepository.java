@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface LikeRepository extends JpaRepository<Like, Long> {
 
-
     boolean existsByUserIdAndItemId(Long userId, Long itemId);
     @Transactional
     void deleteLikeByUserIdAndItemId(Long userId, Long itemId);

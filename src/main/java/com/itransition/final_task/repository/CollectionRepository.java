@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
@@ -17,8 +16,6 @@ public interface CollectionRepository extends JpaRepository<Collection, Long> {
 
     List<Collection> findAllByUserId(Long userId);
 
-    boolean existsByUserId(Long userId);
-
     @Query("SELECT a.userId from Collection a where a.id = :id")
     Long getUserIdById(Long id);
 
@@ -28,7 +25,7 @@ public interface CollectionRepository extends JpaRepository<Collection, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "CALL delete_collection(:collection_id); commit", nativeQuery = true)
+    @Query(value = "CALL delete_collection(:collection_id)", nativeQuery = true)
     void deleteCollectionById(@Param("collection_id") Long collectionId);
 
 }

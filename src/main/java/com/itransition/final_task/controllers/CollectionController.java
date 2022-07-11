@@ -4,11 +4,9 @@ package com.itransition.final_task.controllers;
 import com.itransition.final_task.dto.request.CollectionRequest;
 import com.itransition.final_task.dto.response.CollectionToMainPageResponse;
 import com.itransition.final_task.services.CollectionService;
-import com.itransition.final_task.services.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 

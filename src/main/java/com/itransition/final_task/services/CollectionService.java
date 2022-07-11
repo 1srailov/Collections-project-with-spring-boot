@@ -3,7 +3,6 @@ package com.itransition.final_task.services;
 
 import com.itransition.final_task.dto.request.CollectionRequest;
 import com.itransition.final_task.dto.response.*;
-import com.itransition.final_task.mapper.CommentaryMapper;
 import com.itransition.final_task.mapper.ItemValueMapper;
 import com.itransition.final_task.models.Collection;
 

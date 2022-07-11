@@ -5,7 +5,6 @@ import com.itransition.final_task.dto.request.AddItemRequest;
 import com.itransition.final_task.dto.response.CommentaryResponse;
 import com.itransition.final_task.dto.response.ItemResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
-import com.itransition.final_task.mapper.CommentaryMapper;
 import com.itransition.final_task.mapper.ItemValueMapper;
 import com.itransition.final_task.models.*;
 import com.itransition.final_task.repository.*;

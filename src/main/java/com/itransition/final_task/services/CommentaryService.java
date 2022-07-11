@@ -5,7 +5,6 @@ import com.itransition.final_task.dto.response.CommentaryResponse;
 import com.itransition.final_task.dto.response.MessageResponse;
 import com.itransition.final_task.models.Commentary;
 import com.itransition.final_task.repository.CommentaryRepository;
-import io.swagger.models.Model;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
